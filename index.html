@@ -48,7 +48,7 @@
 <body>
   <h1>Храмовый тур ТЕХ САМЫХ❤️</h1>
   <div class="progress-bar"><div class="progress" id="progress"></div></div>
-  <p>Он Самый и Она Самая🙏</p>
+  <p>Он Самый и Она Самая - только вместе🙏</p>
   <div id="temple-list"></div>
 
   <footer>
@@ -59,17 +59,19 @@
   <script>
     let data = [];
 
-    if (localStorage.getItem("temples_progress")) {
-      data = JSON.parse(localStorage.getItem("temples_progress"));
-      render();
-    } else {
-      fetch("temples_100.json")
-        .then(res => res.json())
-        .then(json => {
-          data = json;
-          localStorage.setItem("temples_progress", JSON.stringify(data));
-          render();
-        });
+    function initApp() {
+      if (localStorage.getItem("temples_progress")) {
+        data = JSON.parse(localStorage.getItem("temples_progress"));
+        render();
+      } else {
+        fetch("temples_100.json")
+          .then(res => res.json())
+          .then(json => {
+            data = json;
+            localStorage.setItem("temples_progress", JSON.stringify(data));
+            render();
+          });
+      }
     }
 
     function render() {
@@ -105,6 +107,12 @@
       const percent = (visitedCount / data.length * 100).toFixed(1);
       progress.style.width = percent + "%";
     }
+
+    // Telegram WebApp init safety
+    if (window.Telegram.WebApp) {
+      Telegram.WebApp.ready();
+    }
+    window.addEventListener("DOMContentLoaded", initApp);
   </script>
 </body>
 </html>
