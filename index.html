@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Храмовый тур ТЕХ САМЫХ❤️</title>
+  <title>Храмовый тур ТЕХ САМЫХ♡</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     body {
       background-color: #111;
-      color: white;
+      color: #f2d9e6;
       font-family: Arial, sans-serif;
       padding: 20px;
     }
     h1 {
-      color: #00ff99;
+      color: #f8a8c5;
       margin-bottom: 10px;
+      font-weight: bold;
     }
     .temple {
       padding: 5px 0;
@@ -23,6 +24,7 @@
     }
     .checkbox {
       margin-right: 10px;
+      accent-color: #f8a8c5;
     }
     .progress-bar {
       background: #333;
@@ -32,7 +34,7 @@
       margin-bottom: 20px;
     }
     .progress {
-      background: #00ff99;
+      background: #f8a8c5;
       height: 100%;
       width: 0%;
       transition: width 0.3s;
@@ -40,13 +42,13 @@
     footer {
       margin-top: 40px;
       font-size: 14px;
-      color: #777;
+      color: #a58e9b;
       text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>Храмовый тур ТЕХ САМЫХ❤️</h1>
+  <h1>Храмовый тур ТЕХ САМЫХ♡</h1>
   <div class="progress-bar"><div class="progress" id="progress"></div></div>
   <p>Он Самый и Она Самая - только вместе🙏</p>
   <div id="temple-list"></div>
@@ -57,21 +59,36 @@
   </footer>
 
   <script>
+    const DB_URL = "https://temple-tour-232fb-default-rtdb.europe-west1.firebasedatabase.app/sharedProgress";
     let data = [];
 
-    function initApp() {
-      if (localStorage.getItem("temples_progress")) {
-        data = JSON.parse(localStorage.getItem("temples_progress"));
-        render();
-      } else {
-        fetch("temples_100.json")
-          .then(res => res.json())
-          .then(json => {
-            data = json;
-            localStorage.setItem("temples_progress", JSON.stringify(data));
+    Telegram.WebApp.ready();
+
+    function fetchProgress() {
+      fetch(`${DB_URL}.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(remoteData => {
+          if (remoteData && Array.isArray(remoteData)) {
+            data = remoteData;
             render();
-          });
-      }
+          } else {
+            fetch("temples_100.json")
+              .then(res => res.json())
+              .then(json => {
+                data = json;
+                saveProgress();
+                render();
+              });
+          }
+        });
+    }
+
+    function saveProgress() {
+      fetch(`${DB_URL}.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
     }
 
     function render() {
@@ -89,7 +106,7 @@
         checkbox.checked = temple.visited;
         checkbox.onchange = () => {
           data[index].visited = checkbox.checked;
-          localStorage.setItem("temples_progress", JSON.stringify(data));
+          saveProgress();
           render();
         };
 
@@ -108,11 +125,7 @@
       progress.style.width = percent + "%";
     }
 
-    // Telegram WebApp init safety
-    if (window.Telegram.WebApp) {
-      Telegram.WebApp.ready();
-    }
-    window.addEventListener("DOMContentLoaded", initApp);
+    window.addEventListener("DOMContentLoaded", fetchProgress);
   </script>
 </body>
 </html>
