@@ -58,12 +58,19 @@
 
   <script>
     let data = [];
-    fetch("temples_100.json")
-      .then(res => res.json())
-      .then(json => {
-        data = json;
-        render();
-      });
+
+    if (localStorage.getItem("temples_progress")) {
+      data = JSON.parse(localStorage.getItem("temples_progress"));
+      render();
+    } else {
+      fetch("temples_100.json")
+        .then(res => res.json())
+        .then(json => {
+          data = json;
+          localStorage.setItem("temples_progress", JSON.stringify(data));
+          render();
+        });
+    }
 
     function render() {
       const list = document.getElementById("temple-list");
@@ -80,6 +87,7 @@
         checkbox.checked = temple.visited;
         checkbox.onchange = () => {
           data[index].visited = checkbox.checked;
+          localStorage.setItem("temples_progress", JSON.stringify(data));
           render();
         };
 
