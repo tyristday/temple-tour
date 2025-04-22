@@ -18,13 +18,29 @@
       font-weight: bold;
     }
     .temple {
-      padding: 5px 0;
-      display: flex;
-      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #2c2c2c;
     }
     .checkbox {
       margin-right: 10px;
       accent-color: #f8a8c5;
+    }
+    .toggle-info {
+      background: none;
+      border: none;
+      color: #f8a8c5;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      margin-left: 24px;
+    }
+    .hidden-info {
+      display: none;
+      margin-top: 10px;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
     }
     .progress-bar {
       background: #333;
@@ -65,21 +81,20 @@
     Telegram.WebApp.ready();
 
     function fetchProgress() {
-      fetch(`${DB_URL}.json`)
-        .then(res => res.ok ? res.json() : null)
-        .then(remoteData => {
-          if (remoteData && Array.isArray(remoteData)) {
-            data = remoteData;
-            render();
-          } else {
-            fetch("temples_100.json")
-              .then(res => res.json())
-              .then(json => {
-                data = json;
+      fetch("temples_104_extended.json")
+        .then(res => res.json())
+        .then(json => {
+          data = json;
+          fetch(`${DB_URL}.json`)
+            .then(res => res.ok ? res.json() : null)
+            .then(remoteData => {
+              if (remoteData && Array.isArray(remoteData)) {
+                data = remoteData;
+              } else {
                 saveProgress();
-                render();
-              });
-          }
+              }
+              render();
+            });
         });
     }
 
@@ -113,8 +128,27 @@
         const label = document.createElement("label");
         label.textContent = temple.name;
 
+        const infoButton = document.createElement("button");
+        infoButton.textContent = "Подробнее";
+        infoButton.className = "toggle-info";
+
+        const infoBlock = document.createElement("div");
+        infoBlock.className = "hidden-info";
+        infoBlock.innerHTML = `
+          <p><strong>Год постройки:</strong> ${temple.info.year}</p>
+          <p><strong>Описание:</strong> ${temple.info.description}</p>
+          <p><strong>Адрес:</strong> ${temple.info.address}</p>
+          <p><a href="${temple.info.mapLink}" target="_blank">Открыть на карте</a></p>
+        `;
+
+        infoButton.onclick = () => {
+          infoBlock.style.display = infoBlock.style.display === "none" ? "block" : "none";
+        };
+
         div.appendChild(checkbox);
         div.appendChild(label);
+        div.appendChild(infoButton);
+        div.appendChild(infoBlock);
         list.appendChild(div);
 
         if (temple.visited) visitedCount++;
