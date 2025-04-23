@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Храмовый тур ТЕХ САМЫХ♡</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
@@ -14,8 +14,8 @@
     }
     h1 {
       color: #f8a8c5;
-      font-weight: bold;
       margin-bottom: 10px;
+      font-weight: bold;
     }
     .temple {
       padding: 5px 0;
@@ -54,7 +54,8 @@
   <div id="temple-list"></div>
 
   <footer>
-    © 2025 TROKHIMCHUK GROUP<br>Сделано с любовью
+    © 2025 TROKHIMCHUK GROUP<br>
+    Сделано с любовью
   </footer>
 
   <script>
@@ -74,13 +75,7 @@
             fetch("temples_104.json")
               .then(res => res.json())
               .then(json => {
-                const topTemples = [
-                  { id: 1, name: "Храм Пимена Великого в Новых Воротниках", visited: true },
-                  { id: 2, name: "Храм Архистратига Михаила в Тропарёво", visited: true },
-                  { id: 3, name: "Храм-часовня святителя Василия Великого (ВДНХ)", visited: true },
-                  { id: 4, name: "Храм Всемилостивого Спаса бывшего Скорбященского монастыря", visited: true }
-                ];
-                data = [...topTemples, ...json.filter(t => t.id > 4)];
+                data = json;
                 saveProgress();
                 render();
               });
