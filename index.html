@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Храмовый тур ТЕХ САМЫХ♡</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #111;
+      color: #f2d9e6;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: #f8a8c5;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .temple {
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+    }
+    .checkbox {
+      margin-right: 10px;
+      accent-color: #f8a8c5;
+    }
+    .progress-bar {
+      background: #333;
+      border-radius: 10px;
+      height: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress {
+      background: #f8a8c5;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #a58e9b;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Храмовый тур ТЕХ САМЫХ♡</h1>
+  <div class="progress-bar"><div class="progress" id="progress"></div></div>
+  <p>Он Самый и Она Самая очищают Москву через 104 храма 🙏</p>
+  <div id="temple-list"></div>
+
+  <footer>
+    © 2025 TROKHIMCHUK GROUP<br>Сделано с любовью
+  </footer>
+
+  <script>
+    const DB_URL = "https://temple-tour-232fb-default-rtdb.europe-west1.firebasedatabase.app/sharedProgress";
+    let data = [];
+
+    Telegram.WebApp.ready();
+
+    function fetchProgress() {
+      fetch(`${DB_URL}.json`)
+        .then(res => res.ok ? res.json() : null)
+        .then(remoteData => {
+          if (remoteData && Array.isArray(remoteData)) {
+            data = remoteData;
+            render();
+          } else {
+            fetch("temples_104.json")
+              .then(res => res.json())
+              .then(json => {
+                const topTemples = [
+                  { id: 1, name: "Храм Пимена Великого в Новых Воротниках", visited: true },
+                  { id: 2, name: "Храм Архистратига Михаила в Тропарёво", visited: true },
+                  { id: 3, name: "Храм-часовня святителя Василия Великого (ВДНХ)", visited: true },
+                  { id: 4, name: "Храм Всемилостивого Спаса бывшего Скорбященского монастыря", visited: true }
+                ];
+                data = [...topTemples, ...json.filter(t => t.id > 4)];
+                saveProgress();
+                render();
+              });
+          }
+        });
+    }
+
+    function saveProgress() {
+      fetch(`${DB_URL}.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    }
+
+    function render() {
+      const list = document.getElementById("temple-list");
+      list.innerHTML = "";
+      let visitedCount = 0;
+
+      data.forEach((temple, index) => {
+        const div = document.createElement("div");
+        div.className = "temple";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.className = "checkbox";
+        checkbox.checked = temple.visited;
+        checkbox.onchange = () => {
+          data[index].visited = checkbox.checked;
+          saveProgress();
+          render();
+        };
+
+        const label = document.createElement("label");
+        label.textContent = temple.name;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        list.appendChild(div);
+
+        if (temple.visited) visitedCount++;
+      });
+
+      const progress = document.getElementById("progress");
+      const percent = (visitedCount / data.length * 100).toFixed(1);
+      progress.style.width = percent + "%";
+    }
+
+    window.addEventListener("DOMContentLoaded", fetchProgress);
+  </script>
+</body>
+</html>
